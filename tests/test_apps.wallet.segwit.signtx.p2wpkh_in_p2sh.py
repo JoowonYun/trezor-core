@@ -15,6 +15,7 @@ from trezor.messages import InputScriptType
 from trezor.messages import OutputScriptType
 
 from apps.common import coins
+from apps.common.seed import Keychain
 from apps.wallet.sign_tx import helpers, signing
 
 
@@ -110,7 +111,8 @@ class TestSignSegwitTxP2WPKHInP2SH(unittest.TestCase):
             )),
         ]
 
-        signer = signing.sign_tx(tx, root)
+        keychain = Keychain([[coin.curve_name]], [root])
+        signer = signing.sign_tx(tx, keychain)
         for request, response in chunks(messages, 2):
             self.assertEqualEx(signer.send(request), response)
         with self.assertRaises(StopIteration):
@@ -213,7 +215,8 @@ class TestSignSegwitTxP2WPKHInP2SH(unittest.TestCase):
             )),
         ]
 
-        signer = signing.sign_tx(tx, root)
+        keychain = Keychain([[coin.curve_name]], [root])
+        signer = signing.sign_tx(tx, keychain)
         for request, response in chunks(messages, 2):
             self.assertEqualEx(signer.send(request), response)
         with self.assertRaises(StopIteration):
@@ -322,7 +325,8 @@ class TestSignSegwitTxP2WPKHInP2SH(unittest.TestCase):
             TxRequest(request_type=TXFINISHED, details=None)
         ]
 
-        signer = signing.sign_tx(tx, root)
+        keychain = Keychain([[coin.curve_name]], [root])
+        signer = signing.sign_tx(tx, keychain)
         i = 0
         messages_count = int(len(messages) / 2)
         for request, response in chunks(messages, 2):

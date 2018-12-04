@@ -15,6 +15,7 @@ from trezor.messages.TxRequestSerializedType import TxRequestSerializedType
 from trezor.messages import OutputScriptType
 
 from apps.common import coins
+from apps.common.seed import Keychain
 from apps.wallet.sign_tx import helpers, signing
 
 
@@ -87,7 +88,8 @@ class TestSignTx_GRS(unittest.TestCase):
         seed = bip39.seed(' '.join(['all'] * 12), '')
         root = bip32.from_seed(seed, coin.curve_name)
 
-        signer = signing.sign_tx(tx, root)
+        keychain = Keychain([[coin.curve_name]], [root])
+        signer = signing.sign_tx(tx, keychain)
         for request, response in chunks(messages, 2):
             self.assertEqualEx(signer.send(request), response)
         with self.assertRaises(StopIteration):

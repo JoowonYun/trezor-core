@@ -15,6 +15,7 @@ from trezor.messages.TxRequestSerializedType import TxRequestSerializedType
 from trezor.messages import OutputScriptType
 
 from apps.common import coins
+from apps.common.seed import Keychain
 from apps.wallet.sign_tx import helpers, signing
 
 
@@ -61,7 +62,7 @@ class TestSignTx(unittest.TestCase):
 
             TxRequest(request_type=TXINPUT, details=TxRequestDetailsType(request_index=0, tx_hash=None)),
             TxAck(tx=TransactionType(inputs=[inp1])),
-            signing.UiConfirmForeignAddress(address_n=inp1.address_n),
+            helpers.UiConfirmForeignAddress(address_n=inp1.address_n),
             True,
             TxRequest(request_type=TXMETA, details=TxRequestDetailsType(request_index=None, tx_hash=unhexlify('d5f65ee80147b4bcc70b75e4bbf2d7382021b871bd8867ef8fa525ef50864882')), serialized=None),
             TxAck(tx=ptx1),
@@ -98,7 +99,8 @@ class TestSignTx(unittest.TestCase):
         seed = bip39.seed('alcohol woman abuse must during monitor noble actual mixed trade anger aisle', '')
         root = bip32.from_seed(seed, 'secp256k1')
 
-        signer = signing.sign_tx(tx, root)
+        keychain = Keychain([[coin_bitcoin.curve_name]], [root])
+        signer = signing.sign_tx(tx, keychain)
 
         for request, response in chunks(messages, 2):
             res = signer.send(request)
